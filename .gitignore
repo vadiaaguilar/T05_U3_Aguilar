@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.rst
+*.db
+*.emat
+*.full
+*.lock
+*.aux
+*.bbl
+*.blg
+*.log.latex
