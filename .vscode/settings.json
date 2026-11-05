@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.mac": "apdl",
+    "*.inp": "apdl"
+  },
+  "python.terminal.activateEnvironment": true
+}

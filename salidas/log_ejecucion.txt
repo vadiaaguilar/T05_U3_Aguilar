@@ -1,0 +1,23 @@
+# Registro de ejecución (2026-11-05)
+Entorno: Python 3.12.3, NumPy 2.5.4, matplotlib 3.11.2
+Nota: pytest no estaba instalado en el entorno de generación; las pruebas se ejecutaron llamando directamente a sus funciones. En su equipo use: python -m pytest -q
+
+$ python tests (test_base + test_analisis, llamadas directas)
+PASSED test_base::test_control_sin_carga_distribuida
+PASSED test_base::test_equilibrio_con_contorno_alterado
+PASSED test_analisis::test_balance_relativo_caso_base
+PASSED test_analisis::test_nodos_exactos_y_error_cuadratico
+PASSED test_analisis::test_referencia_condiciones_de_borde
+
+$ python src/ejecutar.py
+CSV y figura generados. Interprete tambien el caso de contorno alterado.
+
+$ python src/figuras.py
+Figura y tabla generadas
+
+--- salidas/resultados.csv
+caso,n,u_L_mm,R_izq_N,R_der_N,error_medio_mm,balance_N
+M2,2,0.3,-40000.0,0.0,0.0062500000000000056,0.0
+M4,4,0.2999999999999998,-39999.99999999998,0.0,0.0015625000000001332,2.1827872842550278e-11
+M8,8,0.3000000000000003,-40000.00000000004,0.0,0.0003906249999999778,-3.637978807091713e-11
+BC_ALTERADO,8,0.0,-10000.0,-30000.0,,0.0

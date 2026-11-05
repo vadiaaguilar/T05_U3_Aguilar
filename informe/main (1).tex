@@ -1,0 +1,56 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,booktabs,graphicx,siunitx,url}
+% Adaptación de la plantilla de informe U1: se conserva preámbulo, A4, 11 pt y margen 2.4 cm.
+% Límite de la entrega: 2 páginas, incluidos título, figuras, bibliografía y declaración.
+\title{Test 5: malla, contorno y evidencia}
+\author{Nombre:Vadía Aguilar}
+\date{}
+\begin{document}
+\maketitle
+\section{Problema y objetivo}
+¿Basta el acuerdo en los nodos para aceptar el campo de desplazamientos de una barra axial calculado con MEF, y qué cambia al añadir $u(L)=0$? Se compara el solver NumPy suministrado (2, 4 y 8 elementos lineales) con una referencia analítica independiente y se contrasta con el modelo alterado \texttt{BC\_ALTERADO}.
+
+\section{Datos, supuestos y método}
+Barra elástica lineal con $EA$ constante, $L=\SI{2000}{mm}$, $E=\SI{200000}{N/mm^2}$, $A=\SI{1000}{mm^2}$, carga de extremo $P=\SI{20000}{N}$ y carga uniforme $q=\SI{10}{N/mm}$, ambas en $+x$ (N y mm). Contorno base: $u(0)=0$ y $EA\,u'(L)=P$ (Fig.~\ref{fig:a}a). El problema es $-(EA\,u')'=q$ \cite{rod}; integrando con ese contorno,
+\begin{equation}
+u(x)=\frac{(P+qL)\,x-qx^2/2}{EA},\qquad u(L)=\frac{PL+qL^2/2}{EA}=\SI{0.3}{mm}.
+\end{equation}
+El sistema $\mathbf{K}\mathbf{u}=\mathbf{f}$ se resuelve con \texttt{numpy.linalg.solve} \cite{numpy}; las reacciones se recuperan como $\mathbf{r}=\mathbf{K}\mathbf{u}-\mathbf{f}$ con $\mathbf{K}$ y $\mathbf{f}$ originales (sin condensar): el residuo debe ser nulo en los grados libres y valer la reacción en los restringidos. El error de campo es el máximo de $|u_h-u_{\mathrm{ref}}|$ en los puntos medios, con $u_h$ interpolado linealmente en cada elemento. Control numérico: $|R+P+qL|/|P+qL|\le 10^{-8}$ (comprobación de cálculo, no validación física). Se conservó \texttt{barra\_mef.py}; el aporte propio es \texttt{analisis.py} (referencia y error), \texttt{figuras.py} y las pruebas \texttt{test\_analisis.py}.
+
+\section{Resultados y verificación}
+La Tabla~\ref{tab:res} y la Fig.~\ref{fig:a}b provienen de \texttt{salidas/resultados.csv} (\texttt{python src/ejecutar.py}). Las pruebas del solver y del análisis pasan; el residuo en grados libres es $\le\SI{6e-11}{N}$ en las tres mallas y el balance relativo es $\le 10^{-15}$.
+\begin{table}[ht]
+\centering\small
+\caption{Resultados. $R_{\mathrm{izq}}$ y $R_{\mathrm{der}}$ en N; error en puntos medios en mm; balance relativo $|R+P+qL|/|P+qL|$ adimensional. En \texttt{BC\_ALTERADO} no hay error de campo comparable, pues la referencia es la del problema base.}
+\label{tab:res}
+\begin{tabular}{lrrrrrr}
+\toprule
+Caso & $n$ & $u(L)$ [mm] & $R_{\mathrm{izq}}$ [N] & $R_{\mathrm{der}}$ [N] & Balance rel. & Error medio [mm]\\
+\midrule
+\input{tabla_resultados.tex}\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{esquema_convergencia.pdf}
+\caption{(a) Esquema del contorno base y del alterado, con cargas y unidades. (b) Error máximo en puntos medios frente al tamaño de elemento $h=L/n$; la línea discontinua tiene pendiente 2.}
+\label{fig:a}
+\end{figure}
+
+\section{Interpretación y conclusiones}
+\textbf{Acuerdo nodal frente a campo.} Lo predicho antes de ejecutar (\texttt{BITACORA.md}) se cumple: $u(L)=\SI{0.3}{mm}$ y todos los nodos coinciden con la referencia en las tres mallas, porque con $EA$ constante y cargas nodales consistentes el MEF lineal es exacto en los nodos. Aun así el error entre nodos no es nulo: $u$ es cuadrática y $u_h$ lineal por tramos, y el máximo en el punto medio es $qh^2/(8EA)$ (6,25e-3, 1,56e-3 y 3,91e-4~mm), que cae $\times4$ al duplicar $n$ (Fig.~\ref{fig:a}b). El acuerdo nodal, por tanto, no certifica la exactitud del campo.
+
+\textbf{Contorno.} Al añadir $u(L)=0$ el balance también cierra ($R_{\mathrm{izq}}+R_{\mathrm{der}}=-40000$~N), pero con $R_{\mathrm{izq}}=-qL/2$ y $R_{\mathrm{der}}=-(P+qL/2)$: la nueva reacción absorbe $P$ y $u(L)$ pasa de 0,3 a 0~mm. Es un problema hiperestático distinto, no un refinamiento; cerrar el equilibrio solo prueba que $\mathbf{K}$ y $\mathbf{f}$ son coherentes, no que el modelo represente el problema pedido.
+
+\textbf{Conclusión.} Los nodos coinciden con la solución exacta, pero el campo entre nodos converge solo con orden 2 en $h$. Una restricción adicional cambia el problema con equilibrio perfecto: el balance verifica el cálculo, no el modelo. Alcance: 1D lineal, $EA$ y $q$ constantes; sin validación experimental.
+
+\section*{Declaración de uso de IA}
+Se usó Claude, el 5-nov-2026, como asistente para redactar \texttt{analisis.py}, \texttt{figuras.py}, \texttt{test\_analisis.py}, este informe y los registros. Comprobación: pruebas automáticas, contraste con la fórmula cerrada de la Sec.~2 y revisión propia de cada bloque (detalle en \texttt{USO\_IA.md}). Las predicciones de \texttt{BITACORA.md} se registraron antes de ejecutar el código.
+
+\bibliographystyle{plain}
+\bibliography{referencias}
+\end{document}

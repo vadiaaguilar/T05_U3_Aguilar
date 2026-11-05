@@ -1,0 +1,10 @@
+Plantilla de informe de la Unidad 1 adaptada a Test 5: malla, contorno y evidencia.
+Se conserva el formato article, 11 pt, A4, margen 2.4 cm y bibliografía plain/BibTeX.
+Abra main.tex en Overleaf o VS Code + TeX Live. Compile con pdfLaTeX, BibTeX, pdfLaTeX, pdfLaTeX.
+Reemplace todos los textos orientadores. Límite: 2 páginas, todo incluido.
+Entregue el PDF y el proyecto LaTeX completo (.tex, .bib y figuras). No entregue solo capturas.
+No comprima fuentes ni reduzca márgenes para eludir el límite. Código y registros van fuera del informe.
+
+Compilacion local con referencias: pdflatex main.tex; bibtex main; pdflatex main.tex; pdflatex main.tex.
+En Overleaf, seleccione main.tex como archivo principal y use Recompile.
+La bibliografia solo aparece al citar fuentes con \cite{clave}; no agregue citas de relleno.
